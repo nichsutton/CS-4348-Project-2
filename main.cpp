@@ -1,11 +1,13 @@
 #include <cstdlib>
 #include <iostream>
+#include <thread>
 using namespace std;
 
 void fillArray(int array[]);
 void singleThreadedMergeSort(int array[]);
+void multiThreadedMergeSort(int array[]);
 void mergeSort(int array[], int leftBound, int rightBound);
-void merge(int array[], int leftBound, int middleBound, int rightBound);
+void customMerge(int array[], int leftBound, int middleBound, int rightBound);
 
 // For testing purposes only
 void printArray(int array[]);
@@ -17,23 +19,27 @@ bool arrayIsSorted(int array[]);
 
 int main() {
     int array[N];
+    int multithreadedArray[N];
 
     fillArray(array);
+    fillArray(multithreadedArray);
 
     // Here for testing only
     printArrayIsSorted(array);
+    printArrayIsSorted(multithreadedArray);
 
     cout << "Sorting singlethreaded... \n";
     singleThreadedMergeSort(array);
+
+    cout << "Sorting multithreaded... \n";
+    multiThreadedMergeSort(multithreadedArray);
     
     // Here for testing only
     printArrayIsSorted(array);
+    printArrayIsSorted(multithreadedArray);
 
     fillArray(array);
-    
-    // Here goes the multithreading
-    // You basically do the same as the singleThreadedMergeSort function but in separate threads
-    // lmk if there are any issues
+
     return 0;
 }
 
@@ -83,8 +89,23 @@ void singleThreadedMergeSort(int array[]) {
     // Merge sort right half
     mergeSort(array, middleBound + 1, N - 1);
     // Merge both halves
-    merge(array, 0, middleBound, N - 1);
+    customMerge(array, 0, middleBound, N - 1);
 }
+
+void multiThreadedMergeSort(int array[]) {
+    int middleBound = (N - 1) / 2;
+
+    // sorts left half on thread1
+    std::thread sortingThread1 (mergeSort, array, 0, middleBound);
+    // sorts right half on thread2
+    std::thread sortingThread2 (mergeSort, array, middleBound + 1, N - 1);
+    sortingThread1.join();
+    sortingThread2.join();
+
+    // sorts the two halfs on merging thread
+    std::thread mergingThread (customMerge, array, 0, middleBound, N - 1);
+    mergingThread.join();
+};
 
 // Performs a merge sort on array within bounds [leftBound, rightBound]
 void mergeSort(int array[], int leftBound, int rightBound) {
@@ -100,12 +121,12 @@ void mergeSort(int array[], int leftBound, int rightBound) {
     // Merge sort right half
     mergeSort(array, middleBound + 1, rightBound);
     // Merge both halves
-    merge(array, leftBound, middleBound, rightBound);
+    customMerge(array, leftBound, middleBound, rightBound);
 }
 
 // Merges two halves in array.
 // Bounds of halves are [leftBound, middleBound] and [middleBound + 1, rightBound]
-void merge(int array[], int leftBound, int middleBound, int rightBound) {
+void customMerge(int array[], int leftBound, int middleBound, int rightBound) {
     // Create temporary array
     int tempArray[rightBound - leftBound + 1];
     // Create pointers
