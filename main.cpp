@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <thread>
+#include <chrono>
 using namespace std;
 
 void fillArray(int array[]);
@@ -15,30 +16,33 @@ void printArrayIsSorted(int array[]);
 bool arrayIsSorted(int array[]);
 
 // Size of array
-#define N 10000
+//#define N 10000
+int N = 10000;
 
 int main() {
-    int array[N];
-    int multithreadedArray[N];
+    int arraySizes[] = {1000, 5000, 10000, 20000};
 
-    fillArray(array);
-    fillArray(multithreadedArray);
+    for (int i = 0; i < 4; i++) {
+        // need to init an array for each value of N in the test-case sizes
+        N = arraySizes[i];
+        int array[N];
+        cout << "N = " << N << "\n";
+        // single threaded
+        fillArray(array);
+        auto singleStartTime = std::chrono::high_resolution_clock::now();
+        singleThreadedMergeSort(array);
+        auto singleStopTime = std::chrono::high_resolution_clock::now();
+        auto singleSortDuration = std::chrono::duration<double, std::milli>(singleStopTime - singleStartTime);
+        std::cout << "SINGLE-THREADED sort-time = " << singleSortDuration.count() << " msec\n";
 
-    // Here for testing only
-    printArrayIsSorted(array);
-    printArrayIsSorted(multithreadedArray);
-
-    cout << "Sorting singlethreaded... \n";
-    singleThreadedMergeSort(array);
-
-    cout << "Sorting multithreaded... \n";
-    multiThreadedMergeSort(multithreadedArray);
-    
-    // Here for testing only
-    printArrayIsSorted(array);
-    printArrayIsSorted(multithreadedArray);
-
-    fillArray(array);
+        // multithreaded
+        fillArray(array);
+        auto multiStartTime = std::chrono::high_resolution_clock::now();
+        multiThreadedMergeSort(array);
+        auto multiStopTime = std::chrono::high_resolution_clock::now();
+        auto multiSortDuration = std::chrono::duration<double, std::milli>(multiStopTime - multiStartTime);
+        std::cout << "MULTI-THREADED sort-time = " << multiSortDuration.count() << " msec\n\n";
+    }
 
     return 0;
 }
