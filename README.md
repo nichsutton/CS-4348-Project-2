@@ -8,7 +8,7 @@
 
 ### Compiling the program:
 To compile this program make sure you are in the project directory. Then type one of the two following commands:\
-`g++ -std=c++11 main.cpp -o main`\
+`g++ -std=c++11 main.cpp -o sort`\
 or\
 `gcc -o sort main.cpp -lstdc++`
 
