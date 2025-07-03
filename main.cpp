@@ -10,39 +10,42 @@ void multiThreadedMergeSort(int array[]);
 void mergeSort(int array[], int leftBound, int rightBound);
 void customMerge(int array[], int leftBound, int middleBound, int rightBound);
 
-// For testing purposes only
-void printArray(int array[]);
-void printArrayIsSorted(int array[]);
-bool arrayIsSorted(int array[]);
-
 // Size of array
-//#define N 10000
-int N = 10000;
+#define N 20000
 
 int main() {
-    int arraySizes[] = {1000, 5000, 10000, 20000};
+    int array[N];
 
-    for (int i = 0; i < 4; i++) {
-        // need to init an array for each value of N in the test-case sizes
-        N = arraySizes[i];
-        int array[N];
-        cout << "N = " << N << "\n";
-        // single threaded
-        fillArray(array);
-        auto singleStartTime = std::chrono::high_resolution_clock::now();
-        singleThreadedMergeSort(array);
-        auto singleStopTime = std::chrono::high_resolution_clock::now();
-        auto singleSortDuration = std::chrono::duration<double, std::milli>(singleStopTime - singleStartTime);
-        std::cout << "SINGLE-THREADED sort-time = " << singleSortDuration.count() << " msec\n";
+    // multithreaded
+    
+    // Shuffle
+    fillArray(array);
+    // Start timer
+    auto multiStartTime = std::chrono::high_resolution_clock::now();
+    // Sort
+    multiThreadedMergeSort(array);
+    // Stop timer
+    auto multiStopTime = std::chrono::high_resolution_clock::now();
+    // Calculate time
+    auto multiSortDuration = std::chrono::duration<double, std::milli>(multiStopTime - multiStartTime);
+    // Output
+    std::cout << "Sorting "<< N << " integers is done in "<< multiSortDuration.count() <<" msec using threads\n";
 
-        // multithreaded
-        fillArray(array);
-        auto multiStartTime = std::chrono::high_resolution_clock::now();
-        multiThreadedMergeSort(array);
-        auto multiStopTime = std::chrono::high_resolution_clock::now();
-        auto multiSortDuration = std::chrono::duration<double, std::milli>(multiStopTime - multiStartTime);
-        std::cout << "MULTI-THREADED sort-time = " << multiSortDuration.count() << " msec\n\n";
-    }
+
+    // single threaded
+
+    // Shuffle
+    fillArray(array);
+    // Start timer
+    auto singleStartTime = std::chrono::high_resolution_clock::now();
+    // Sort
+    singleThreadedMergeSort(array);
+    // Stop timer
+    auto singleStopTime = std::chrono::high_resolution_clock::now();
+    // Calculate time
+    auto singleSortDuration = std::chrono::duration<double, std::milli>(singleStopTime - singleStartTime);
+    // Output
+    std::cout << "Sorting "<< N << " integers is done in "<< singleSortDuration.count() <<" msec without-threads\n";
 
     return 0;
 }
@@ -54,34 +57,6 @@ void fillArray(int array[]) {
         // Fill with random number in range [1, 10000]
         array[i] = (rand() % 10000) + 1;
     }
-}
-
-// Prints array, for testing purposes only
-void printArray(int array[]) {
-    for (int i = 0; i < N; i++) {
-        cout << array[i] << " ";
-    }
-    cout << endl;
-}
-
-// Prints if array is sorted, for testing purposes only
-void printArrayIsSorted(int array[]) {
-    if (arrayIsSorted(array)) {
-        cout << "Array is sorted\n";
-    }
-    else {
-        cout << "Array is NOT sorted\n";
-    }
-}
-
-// Returns true if array is sorted, for testing purposes only
-bool arrayIsSorted(int array[]) {
-    for (int i = 1; i < N; i++) {
-        if (array[i] < array[i-1]) {
-            return false;
-        }
-    }
-    return true;
 }
 
 // Does a single threaded merge sort with no cutoff on array
